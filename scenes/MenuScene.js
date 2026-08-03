@@ -16,16 +16,6 @@ export class MenuScene {
     this.el = el('section', { className: 'scene menu-scene', id: 'menu-scene' });
     const bg = el('div', { className: 'menu-bg' });
 
-    const topBar = el('div', { className: 'menu-topbar' }, [
-      el('button', {
-        className: 'menu-dots',
-        type: 'button',
-        'aria-label': 'menu',
-        text: '···',
-        onClick: () => this.app.openSettings(),
-      }),
-    ]);
-
     const content = el('div', { className: 'menu-content' });
 
     this.refs.title = el('h1', {
@@ -80,7 +70,7 @@ export class MenuScene {
       this.refs.footer,
     );
 
-    this.el.append(bg, topBar, content);
+    this.el.append(bg, content);
     this.root.appendChild(this.el);
 
     this.falling = new FallingBackground(bg);
