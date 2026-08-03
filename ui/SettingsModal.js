@@ -1,8 +1,10 @@
-/** Settings modal — ports showSettings from ViewController */
+/** Settings modal — redesigned to match the latest iOS settings UI */
 import { GameMode } from '../src/GameMode.js';
 import { MathOperation } from '../src/MathOperation.js';
-import { Language, ALL_LANGUAGES, languageDisplayName } from '../src/Language.js';
+import { Language, languageDisplayName } from '../src/Language.js';
+import { Theme, ALL_THEMES } from '../src/Theme.js';
 import { el } from '../utils/helpers.js';
+import { applyTheme } from '../utils/theme.js';
 
 const MODE_ORDER = [
   GameMode.math,
@@ -34,9 +36,21 @@ const OP_LABELS = {
   [MathOperation.division]: 'division',
 };
 
+const THEME_META = {
+  [Theme.system]: { labelKey: 'themeSystem', icon: '◐' },
+  [Theme.light]: { labelKey: 'themeLight', icon: '☀' },
+  [Theme.dark]: { labelKey: 'themeDark', icon: '☾' },
+};
+
 const PRIVACY_URL = 'https://github.com/muratgulcan/quick-mind';
 
-export function openSettingsModal(root, { localization, settingsManager, onClose, onLanguageChange }) {
+export function openSettingsModal(root, {
+  localization,
+  settingsManager,
+  onClose,
+  onLanguageChange,
+  onThemeChange,
+}) {
   settingsManager.loadSettings();
 
   const selectedModes = new Set(
@@ -50,9 +64,11 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
       : OP_ORDER,
   );
   let language = settingsManager.currentLanguage;
+  let theme = settingsManager.currentTheme || Theme.system;
 
   const backdrop = el('div', { className: 'modal-backdrop' });
-  const modal = el('div', { className: 'modal' });
+  const modal = el('div', { className: 'modal settings-modal' });
+
   const header = el('div', { className: 'modal-header' }, [
     el('h2', { text: localization.localizedString('settingsTitle') }),
     el('p', {
@@ -63,7 +79,7 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
 
   const body = el('div', { className: 'modal-body' });
 
-  // Language
+  // Language card
   const langBlock = el('div', { className: 'setting-block' }, [
     el('div', { className: 'setting-name', text: localization.localizedString('language') }),
     el('p', {
@@ -71,8 +87,9 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
       text: localization.localizedString('languageDescription'),
     }),
   ]);
-  const langToggle = el('div', { className: 'lang-toggle' });
-  for (const lang of ALL_LANGUAGES) {
+  const langToggle = el('div', { className: 'segmented' });
+  const languageOrder = [Language.turkish, Language.english];
+  for (const lang of languageOrder) {
     const btn = el('button', {
       type: 'button',
       className: lang === language ? 'active' : '',
@@ -83,13 +100,13 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
         settingsManager.currentLanguage = lang;
         persist();
         onLanguageChange?.(lang);
-        // Rebuild to refresh labels
         close(false);
         openSettingsModal(root, {
           localization,
           settingsManager,
           onClose,
           onLanguageChange,
+          onThemeChange,
         });
       },
     });
@@ -104,7 +121,7 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
   for (const mode of MODE_ORDER) {
     const [nameKey, descKey] = MODE_LABELS[mode];
     const row = el('div', { className: 'setting-row' });
-    const left = el('div', {}, [
+    const left = el('div', { className: 'setting-text' }, [
       el('div', { className: 'setting-name', text: localization.localizedString(nameKey) }),
     ]);
     const sw = makeSwitch(selectedModes.has(mode));
@@ -118,12 +135,15 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
 
     if (mode === GameMode.math) {
       mathOpsWrap = el('div', {
-        className: `sub-settings${selectedModes.has(GameMode.math) ? '' : ' disabled'}`,
+        className: `math-ops-box${selectedModes.has(GameMode.math) ? '' : ' disabled'}`,
       });
       for (const op of OP_ORDER) {
-        const opRow = el('div', { className: 'setting-row', style: { marginTop: '8px' } });
+        const opRow = el('div', { className: 'setting-row math-op-row' });
         opRow.append(
-          el('div', { className: 'setting-name', text: localization.localizedString(OP_LABELS[op]) }),
+          el('div', {
+            className: 'setting-name',
+            text: localization.localizedString(OP_LABELS[op]),
+          }),
           makeSwitch(selectedOps.has(op), (checked) => {
             if (checked) selectedOps.add(op);
             else selectedOps.delete(op);
@@ -155,6 +175,34 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
     body.appendChild(block);
   }
 
+  // Theme
+  const themeBlock = el('div', { className: 'setting-block' }, [
+    el('div', { className: 'setting-name', text: localization.localizedString('theme') }),
+  ]);
+  const themeGrid = el('div', { className: 'theme-grid' });
+  for (const t of ALL_THEMES) {
+    const meta = THEME_META[t];
+    const btn = el('button', {
+      type: 'button',
+      className: `theme-option${t === theme ? ' active' : ''}`,
+      dataset: { theme: t },
+      onClick: () => {
+        theme = t;
+        themeGrid.querySelectorAll('.theme-option').forEach((node) => {
+          node.classList.toggle('active', node.dataset.theme === theme);
+        });
+        applyTheme(theme);
+        onThemeChange?.(theme);
+      },
+    }, [
+      el('span', { className: 'theme-icon', text: meta.icon }),
+      el('span', { className: 'theme-label', text: localization.localizedString(meta.labelKey) }),
+    ]);
+    themeGrid.appendChild(btn);
+  }
+  themeBlock.appendChild(themeGrid);
+  body.appendChild(themeBlock);
+
   const footer = el('div', { className: 'modal-footer' });
   const privacyBtn = el('button', {
     className: 'linkish',
@@ -169,7 +217,7 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
     },
   });
   const closeBtn = el('button', {
-    className: 'btn btn-red',
+    className: 'btn btn-red settings-close',
     type: 'button',
     text: localization.localizedString('close'),
     onClick: () => close(true),
@@ -185,7 +233,7 @@ export function openSettingsModal(root, { localization, settingsManager, onClose
     for (const mode of MODE_ORDER) {
       if (modeSwitches.get(mode)?.checked) modes.add(mode);
     }
-    settingsManager.saveSettings(modes, selectedOps, language);
+    settingsManager.saveSettings(modes, selectedOps, language, theme);
   }
 
   function close(save) {

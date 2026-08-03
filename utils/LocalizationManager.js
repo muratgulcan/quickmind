@@ -5,7 +5,9 @@
 import { Language } from '../src/Language.js';
 
 const turkishStrings = {
-  title: 'QuickMind',
+  title: 'Quick Mind',
+  menuSubtitle: 'Zorluk seç ve oyuna başla',
+  menuFooter: "Oyun modlarını Ayarlar'dan özelleştirebilirsin",
   easy: 'Kolay',
   medium: 'Orta',
   hard: 'Zor',
@@ -19,6 +21,8 @@ const turkishStrings = {
   correct: 'Doğru! 🎉',
   points: 'puan',
   wrong: 'Yanlış! Oyun Bitti 😔',
+  gameOverTitle: '🎉 Oyun Bitti 🎉',
+  finalScore: 'Final Skor: %@',
   tapEmoji: "Lütfen '%@' tıklayın",
   memoryQuestion: '%d tur önce hangi cevabı vermiştin?',
   selectMin: 'En küçük sayıyı seçin',
@@ -45,6 +49,10 @@ const turkishStrings = {
   division: 'Bölme',
   language: 'Dil',
   languageDescription: 'Uygulama dilini seçin',
+  theme: 'Tema',
+  themeSystem: 'Sistem',
+  themeLight: 'Açık',
+  themeDark: 'Koyu',
   scoreboardTitle: 'Skor Tablosu',
   difficulty: 'Zorluk',
   date: 'Tarih',
@@ -111,7 +119,9 @@ const turkishStrings = {
 };
 
 const englishStrings = {
-  title: 'QuickMind',
+  title: 'Quick Mind',
+  menuSubtitle: 'Choose a difficulty and start',
+  menuFooter: 'Customize game modes in Settings',
   easy: 'Easy',
   medium: 'Medium',
   hard: 'Hard',
@@ -125,6 +135,8 @@ const englishStrings = {
   correct: 'Correct! 🎉',
   points: 'points',
   wrong: 'Wrong! Game Over 😔',
+  gameOverTitle: '🎉 Game Over 🎉',
+  finalScore: 'Final Score: %@',
   tapEmoji: "Please tap '%@'",
   memoryQuestion: 'What answer did you give %d rounds ago?',
   selectMin: 'Select the smallest number',
@@ -151,6 +163,10 @@ const englishStrings = {
   division: 'Division',
   language: 'Language',
   languageDescription: 'Select the application language',
+  theme: 'Theme',
+  themeSystem: 'System',
+  themeLight: 'Light',
+  themeDark: 'Dark',
   scoreboardTitle: 'Scoreboard',
   difficulty: 'Difficulty',
   date: 'Date',

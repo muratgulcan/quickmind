@@ -6,6 +6,7 @@ import { LocalizationManager } from '../utils/LocalizationManager.js';
 import { SettingsManager } from '../utils/SettingsManager.js';
 import { GameResultManager } from '../utils/GameResultManager.js';
 import { adManager } from '../utils/MonetizationStub.js';
+import { applyTheme } from '../utils/theme.js';
 import { MenuScene } from '../scenes/MenuScene.js';
 import { GameScene } from '../scenes/GameScene.js';
 import { openSettingsModal } from '../ui/SettingsModal.js';
@@ -21,6 +22,7 @@ class QuickMindApp {
 
     this.settingsManager.loadSettings();
     this.localization.currentLanguage = this.settingsManager.currentLanguage;
+    applyTheme(this.settingsManager.currentTheme);
     this.gameResults = this.gameResultManager.loadGameResults();
 
     this.menuScene = new MenuScene(root, this);
@@ -28,7 +30,6 @@ class QuickMindApp {
   }
 
   async boot() {
-    // Async-friendly boot (assets are CSS-only today; hook kept for future loads)
     await Promise.resolve();
     this.adManager.initialize();
     this.menuScene.mount();
@@ -62,7 +63,12 @@ class QuickMindApp {
         this.menuScene.refreshLabels();
         this.gameScene.refreshLabels();
       },
+      onThemeChange: (theme) => {
+        this.settingsManager.currentTheme = theme;
+        applyTheme(theme);
+      },
       onClose: () => {
+        applyTheme(this.settingsManager.currentTheme);
         this.menuScene.refreshLabels();
       },
     });

@@ -51,6 +51,12 @@ export class GameScene {
     this.refs.instruction = el('p', { className: 'instruction' });
     this.refs.gridWrap = el('div', { className: 'grid-wrap' });
 
+    this.refs.gameOverTitle = el('h2', {
+      className: 'game-over-title',
+      text: this.app.localization.localizedString('gameOverTitle'),
+    });
+    this.refs.finalScore = el('p', { className: 'game-over-score' });
+    this.refs.finalRound = el('p', { className: 'game-over-round' });
     this.refs.restart = el('button', {
       className: 'btn btn-teal',
       type: 'button',
@@ -63,10 +69,17 @@ export class GameScene {
       text: this.app.localization.localizedString('mainMenu'),
       onClick: () => this.toMenu(),
     });
+    this.refs.gameOverCard = el('div', { className: 'game-over-card' }, [
+      this.refs.gameOverTitle,
+      this.refs.finalScore,
+      this.refs.finalRound,
+      this.refs.restart,
+      this.refs.mainMenu,
+    ]);
     this.refs.overlay = el('div', {
-      className: 'overlay-actions',
+      className: 'game-over-overlay',
       style: { display: 'none' },
-    }, [this.refs.restart, this.refs.mainMenu]);
+    }, [this.refs.gameOverCard]);
 
     content.append(
       this.refs.title,
@@ -293,10 +306,17 @@ export class GameScene {
     this.saveGameResult();
     this.app.adManager.showInterstitialAd(0.25);
 
+    const L = this.app.localization;
+    this.refs.gameOverTitle.textContent = L.localizedString('gameOverTitle');
+    this.refs.finalScore.textContent = L.format('finalScore', this.currentScore);
+    this.refs.finalRound.textContent = `${L.localizedString('round')}: ${this.currentRound}`;
+    this.refs.restart.textContent = L.localizedString('restart');
+    this.refs.mainMenu.textContent = L.localizedString('mainMenu');
+
     setTimeout(() => {
-      this.refs.overlay.style.display = 'flex';
       this.grid.setDimmed(true);
-    }, 500);
+      this.refs.overlay.style.display = 'flex';
+    }, 350);
   }
 
   saveGameResult() {
@@ -313,6 +333,7 @@ export class GameScene {
   refreshLabels() {
     const L = this.app.localization;
     this.refs.title.textContent = L.localizedString('title');
+    this.refs.gameOverTitle.textContent = L.localizedString('gameOverTitle');
     this.refs.restart.textContent = L.localizedString('restart');
     this.refs.mainMenu.textContent = L.localizedString('mainMenu');
   }
